@@ -8,12 +8,24 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 //图标
 import '@/assets/icon/iconfont.css'
-// import router from 'router/index.js'
+import router from './router'
+// 全局组件
+import Dialog from "@/components/Dialog.vue"
+import verifyObj from '@/utils/verify.js'
+import message from '@/common/message.js'
+import request from './axios/request.js'
+import Avatar from '@/components/avatar/avatar.vue'
+import store from './store'
 
 const app = createApp(App);
 
-// app.use(router);
-app.use(ElementPlus);
 app.config.globalProperties.VueCookies = VueCookies;
-
+app.config.globalProperties.globalInfo = {
+  bodyWidth: 60,
+  avatarUrl: '/api/file/getAvatar/'
+};
+app.config.globalProperties.Verify = verifyObj
+app.config.globalProperties.message = message
+app.config.globalProperties.request = request
+app.use(router).use(ElementPlus).use(store).component("Dialog", Dialog).component("Avatar", Avatar);
 app.mount('#app');
