@@ -1,6 +1,6 @@
 <template>
   <div class="plate-information">
-    <span class="a-link menu-item">全部</span>
+    <span class="a-link menu-item">首页</span>
     <template v-for="(item, index) in boardList" :key="item + index">
       <el-popover
         placement="bottom-start"
@@ -39,6 +39,7 @@ const props = defineProps({
 .plate-information {
   .menu-item {
     margin-left: 20px;
+    font-weight: 800;
   }
 }
 

@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="layout">
     <div class="header" v-show="showHeader">
       <div
-        class="header-content"
+        class="header-content center"
         :style="{ width: proxy.globalInfo.bodyWidth + '%' }"
       >
         <!-- logo -->
@@ -67,7 +67,7 @@
     <Dialog :isShow="false">
       <div style="height: 1500px"></div>
     </Dialog>
-    <div class="body">
+    <div class="body-content">
       <router-view></router-view>
     </div>
     <!-- 登录、注册 -->
@@ -246,60 +246,67 @@ onUnmounted(() => {
 </script>
 
 <style lang="less" scoped>
-.header {
-  width: 100%;
-  position: fixed;
-  box-shadow: 0 2px 6px 0 rgb(255, 182, 193);
-  z-index: 1000;
-  background-color: rgba(251, 185, 223, 0.3);
-  .header-content {
-    display: flex;
-    align-items: center;
-    margin: 0 auto;
-    height: 60px;
-    line-height: 60px;
-    .logo {
-      display: block;
-      margin-right: 5px;
-      font-size: 30px;
-      text-decoration: none;
-    }
-    .menu-panel {
-      flex: 1;
-    }
-    .user-info-panel {
-      width: 300px;
+.layout {
+  .header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    box-shadow: 0 2px 6px 0 rgb(255, 162, 173);
+    z-index: 1000;
+    // background-color: rgba(251, 185, 223, 0.3);
+    background-color: rgb(251, 225, 240);
+    .header-content {
       display: flex;
       align-items: center;
-      .message-info {
-        cursor: pointer;
+      height: 60px;
+      line-height: 60px;
+      .logo {
+        display: block;
+        margin-right: 5px;
+        font-size: 30px;
+        text-decoration: none;
+      }
+      .menu-panel {
+        flex: 1;
+      }
+      .user-info-panel {
+        width: 300px;
         display: flex;
-        height: 100%;
-        line-height: 100%;
-        .icon-message {
-          padding-left: 10px;
-          font-size: 20px;
-          color: rgb(147, 147, 147);
+        align-items: center;
+        .message-info {
+          cursor: pointer;
+          display: flex;
+          height: 100%;
+          line-height: 100%;
+          .icon-message {
+            padding-left: 10px;
+            font-size: 20px;
+            color: rgb(147, 147, 147);
+          }
         }
-      }
-      .user-info {
-        cursor: pointer;
-        padding-left: 20px;
-        ::v-deep(.el-image__error) {
-          font-size: 12px;
+        .user-info {
+          cursor: pointer;
+          padding-left: 20px;
+          ::v-deep(.el-image__error) {
+            font-size: 12px;
+          }
         }
-      }
 
-      .op-btn {
-        color: #fff;
-        &:not(:first-child) {
-          margin-left: 5px;
-        }
-        .iconfont {
-          margin-left: 5px;
+        .op-btn {
+          color: #fff;
+          &:not(:first-child) {
+            margin-left: 5px;
+          }
+          .iconfont {
+            margin-left: 5px;
+          }
         }
       }
     }
+  }
+  .body-content {
+    margin-top: 60px;
+    position: relative;
   }
 }
 </style>

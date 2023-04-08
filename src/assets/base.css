@@ -26,6 +26,9 @@
   color: #fbb9df;
   cursor: pointer;
 }
+.a-link:hover {
+  color: #d56cdf;
+}
 .shao-nv-fen {
   color: #fbb9df;
   font-size: 12px;
@@ -36,4 +39,10 @@
 }
 .el-form-item {
   align-items: center;
+}
+.center {
+  margin: 0 auto;
+}
+body {
+  background: rgba(251, 185, 223, 0.2);
 }
