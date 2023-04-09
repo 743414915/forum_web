@@ -28,6 +28,7 @@
               :clearable="!isPassword(item)"
               :placeholder="item.placeholder"
               v-model="formData[item.prop]"
+              @keyup.enter="btnClick"
             >
               <template #prefix>
                 <span :class="item.icon"></span>

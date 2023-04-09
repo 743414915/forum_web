@@ -3,6 +3,27 @@
     class="container-body center"
     :style="{ width: proxy.globalInfo.bodyWidth + '%' }"
   >
+    <!-- 二级板块 -->
+    <div class="sub-board" v-if="pBoardId">
+      <span class="board-item" v-if="subBoardList.length">
+        <router-link
+          :class="['a-link', isActive({ boardId }, true)]"
+          :to="`/forum/${pBoardId}`"
+          >全部</router-link
+        >
+      </span>
+      <span
+        class="board-item"
+        v-for="(item, index) in subBoardList"
+        :key="item + index"
+      >
+        <router-link
+          :class="['a-link', isActive(item)]"
+          :to="`/forum/${item.pboardId}/${item.boardId}`"
+          >{{ item.boardName }}</router-link
+        >
+      </span>
+    </div>
     <div class="article-panel">
       <div class="top-tab">
         <div :class="['tab', isTabActive(0)]" @click="changeOrderType(0)">
@@ -35,23 +56,46 @@
 <script setup>
 import articleListItem from "./components/articleListItem.vue";
 
-import { ref, reactive, getCurrentInstance, onMounted, computed } from "vue";
+import {
+  ref,
+  reactive,
+  getCurrentInstance,
+  onMounted,
+  computed,
+  watch,
+} from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
 const { proxy } = getCurrentInstance();
 const router = useRouter();
 const route = useRoute();
+const store = useStore();
 
 const api = {
   loadArticle: "/forum/loadArticle",
 };
 
+const isActive = (item, isAll = false) => {
+  let className = "";
+  if (isAll) {
+    className = boardId.value == 0 ? "active" : "";
+  } else {
+    className = item.boardId == boardId.value ? "active" : "";
+  }
+  return className;
+};
+
+//一级板块
+let boardId = ref(0);
+let pBoardId = ref(0);
 const loading = ref(false);
 const articleListInfo = ref({});
 const loadArticle = () => {
   loading.value = true;
   let params = {
     pageNo: articleListInfo.value.pageNo,
-    boardId: 0,
+    boardId: boardId.value,
+    pBoardId: pBoardId.value,
     orderType: orderType.value,
   };
   proxy
@@ -79,15 +123,59 @@ const changeOrderType = (type) => {
   loadArticle();
 };
 
-onMounted(() => {
-  loadArticle();
-});
+// 二级板块
+const subBoardList = ref([]);
+const setSubBoard = () => {
+  subBoardList.value = store.getters.getSubBoardList(pBoardId.value);
+};
+
+// 监听板块数据变化
+watch(
+  () => store.state.boardList,
+  (newVal) => {
+    setSubBoard();
+  },
+  { immediate: true, deep: true }
+);
+// 监听路由变化
+watch(
+  () => route.params,
+  (newValue) => {
+    // pBoardId.value = newValue.pBoardId ? newValue.pBoardId : 0;
+    pBoardId.value = newValue.pBoardId;
+    boardId.value = newValue.boardId || 0;
+    loadArticle();
+    setSubBoard();
+    store.dispatch("setActivePBoardId", newValue.pBoardId);
+    store.dispatch("setActiveBoardId", newValue.boardId);
+  },
+  { immediate: true, deep: true }
+);
 </script>
 <style lang="less" scoped>
 .container-body {
-  margin-top: 65px;
-  background: #fff;
+  .sub-board {
+    padding: 10px 0px;
+    .board-item {
+      .a-link {
+        border: 2px solid rgba(251, 185, 223, 0.5);
+        box-sizing: border-box;
+        background: rgba(251, 185, 223, 0.5);
+        border-radius: 15px;
+        padding: 2px 10px;
+        margin-right: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        &.active {
+          border: 2px solid rgba(251, 185, 223, 0.5);
+          color: rgb(251, 185, 223);
+          background: #fff;
+        }
+      }
+    }
+  }
   .article-panel {
+    background: #fff;
     .top-tab {
       display: flex;
       align-items: center;

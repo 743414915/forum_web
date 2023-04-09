@@ -68,7 +68,7 @@
       <div style="height: 1500px"></div>
     </Dialog>
     <div class="body-content">
-      <router-view></router-view>
+      <router-view ref="sss"></router-view>
     </div>
     <!-- 登录、注册 -->
     <LoginAndRegister ref="loginAndRegisterRef"></LoginAndRegister>
@@ -187,6 +187,7 @@ const loadBoard = () => {
         return;
       }
       boardList.value = res.data;
+      store.dispatch("saveBoardList", res.data);
     });
 };
 
@@ -206,7 +207,7 @@ const getUserInfo = () => {
       if (!res || res.code !== 200) {
         return;
       }
-      store.commit("updateLoginUserInfo", res.data);
+      store.dispatch("updateLoginUserInfo", res.data);
     });
 };
 

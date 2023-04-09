@@ -11,19 +11,20 @@
           <div class="post-time">{{ data.postTime }}</div>
           <div class="address">&nbsp;·&nbsp;{{ data.userIpAddress }}</div>
           <el-divider direction="vertical"></el-divider>
-          <router-link :to="'/'" class="a-link">{{
+          <router-link :to="`/forum/${data.pBoardId}`" class="a-link">{{
             data.pBoardName
           }}</router-link>
           <template v-if="data.boardId">
             <span>&nbsp;/&nbsp;</span>
-            <router-link :to="'/'" class="a-link">{{
+            <router-link :to="`/forum/${data.pBoardId}/${data.boardId}`" class="a-link">{{
               data.boardName
             }}</router-link>
           </template>
         </div>
-        <router-link :to="'/'" class="a-link title">{{
-          data.title
-        }}</router-link>
+        <router-link :to="'/'" class="a-link title">
+          <span v-if="data.topType" class="top">置顶</span>
+          <span>{{ data.title }}</span>
+        </router-link>
         <div class="summary">{{ data.summary }}</div>
         <div class="article-info">
           <span class="iconfont icon-eye-solid">
@@ -77,6 +78,13 @@ const props = defineProps({
         margin: 10px 0;
         font-weight: bold;
         font-size: 16px;
+        .top {
+          margin-right: 10px;
+          padding: 0 2px;
+          border-radius: 3px;
+          border: 1px solid #fbb9df;
+          font-size: 12px;
+        }
       }
       .summary {
         font-size: 14px;

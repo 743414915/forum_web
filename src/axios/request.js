@@ -42,8 +42,8 @@ instance.interceptors.response.use(
     if (responseData.code == 200) {
       return responseData;
     } else if (responseData.code == 901) {
-      store.commit("showLogin", true);
-      store.commit("updateLoginUserInfo", null);
+      store.dispatch("showLogin", true);
+      store.dispatch("updateLoginUserInfo", null);
       return Promise.reject({ showError: false, msg: "登陆超时" });
     } else {
       errorCallback && errorCallback(responseData);
