@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import layout from '@/views/Layout.vue';
 import articleList from '@/views/forum/articleList.vue';
+import articleDetail from '@/views/forum/articleDetail/articleDetail.vue';
 import uCenter from '@/views/uCenter/uCenter.vue';
 
 const router = createRouter({
@@ -26,6 +27,11 @@ const router = createRouter({
           path: "/forum/:pBoardId/:boardId",
           name: "二级板块",
           component: articleList,
+        },
+        {
+          path: "/post/:articleId",
+          name: "文章详情",
+          component: articleDetail,
         },
         {
           path: "/user/:userId",

@@ -16,12 +16,14 @@
           }}</router-link>
           <template v-if="data.boardId">
             <span>&nbsp;/&nbsp;</span>
-            <router-link :to="`/forum/${data.pBoardId}/${data.boardId}`" class="a-link">{{
-              data.boardName
-            }}</router-link>
+            <router-link
+              :to="`/forum/${data.pBoardId}/${data.boardId}`"
+              class="a-link"
+              >{{ data.boardName }}</router-link
+            >
           </template>
         </div>
-        <router-link :to="'/'" class="a-link title">
+        <router-link :to="`/post/${data.articleId}`" class="a-link title">
           <span v-if="data.topType" class="top">置顶</span>
           <span>{{ data.title }}</span>
         </router-link>
@@ -38,7 +40,9 @@
           </span>
         </div>
       </div>
-      <cover v-if="data.cover" :cover="data.cover" :width="100"></cover>
+      <router-link :to="`/post/${data.articleId}`">
+        <cover v-if="data.cover" :cover="data.cover" :width="100"></cover
+      ></router-link>
     </div>
   </div>
 </template>

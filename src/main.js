@@ -18,6 +18,7 @@ import Dialog from "@/components/Dialog/Dialog.vue"
 import Avatar from '@/components/avatar/avatar.vue'
 import cover from '@/components/cover/cover.vue'
 import noData from '@/components/noData/noData.vue'
+import confirm from '@/components/confirm/confirm.js'
 import dataList from '@/components/dataList/dataList.vue'
 import verifyObj from '@/utils/verify.js'
 import message from '@/common/message.js'
@@ -32,6 +33,7 @@ app.config.globalProperties.globalInfo = {
 app.config.globalProperties.Verify = verifyObj
 app.config.globalProperties.message = message
 app.config.globalProperties.request = request
+app.config.globalProperties.confirm = confirm
 app.use(router)
   .use(ElementPlus)
   .use(store)

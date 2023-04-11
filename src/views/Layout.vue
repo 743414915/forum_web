@@ -39,7 +39,10 @@
               </userInfoDropdown>
             </div>
             <div class="user-info">
-              <userInfoDropdown :dropdowns="avatarDrowdowns">
+              <userInfoDropdown
+                :dropdowns="avatarDrowdowns"
+                @handleCommand="avatarHandleCommand"
+              >
                 <Avatar :userId="userInfo.userId" :width="50"></Avatar>
               </userInfoDropdown>
             </div>
@@ -90,7 +93,7 @@ import {
 } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
-import mathUtil from "@/utils/util.js";
+import utils from "@/utils/utils.js";
 const { proxy } = getCurrentInstance();
 const router = useRouter();
 const route = useRoute();
@@ -99,6 +102,7 @@ const store = useStore();
 const api = {
   getUserInfo: "/account/getUserInfo",
   loadBoard: "/board/loadBoard",
+  logout: "/account/logout",
 };
 
 // 铃铛下拉列表
@@ -115,6 +119,34 @@ const avatarDrowdowns = reactive([
   { key: "myPage", message: "我的主页" },
   { key: "quit", message: "退出" },
 ]);
+// 退出登录
+const loginOut = () => {
+  proxy
+    .request({
+      url: api.logout,
+    })
+    .then((res) => {
+      if (!res || res.code !== 200) {
+        return;
+      }
+      proxy.message.success("退出成功！");
+      location.reload();
+    })
+    .catch((error) => {
+      proxy.message.error("退出失败，请重试！");
+    });
+};
+// 点击头像下拉列表菜单项
+const avatarHandleCommand = (command) => {
+  switch (command) {
+    case "quit":
+      loginOut();
+      break;
+
+    default:
+      break;
+  }
+};
 
 // =========================data=========================
 let initScrollTop = ref(0);
@@ -123,23 +155,23 @@ let showHeader = ref(true);
 const logoInfo = ref([
   {
     letter: "F",
-    color: mathUtil.getRandomColor(),
+    color: utils.getRandomColor(),
   },
   {
     letter: "o",
-    color: mathUtil.getRandomColor(),
+    color: utils.getRandomColor(),
   },
   {
     letter: "r",
-    color: mathUtil.getRandomColor(),
+    color: utils.getRandomColor(),
   },
   {
     letter: "u",
-    color: mathUtil.getRandomColor(),
+    color: utils.getRandomColor(),
   },
   {
     letter: "m",
-    color: mathUtil.getRandomColor(),
+    color: utils.getRandomColor(),
   },
 ]);
 

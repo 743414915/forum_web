@@ -201,14 +201,7 @@ const checkCodeObj = reactive({
 });
 // 0: 注册   1：登录   2：找回密码
 let opType = ref();
-const formData = reactive({
-  email: "",
-  password: "",
-  checkCode: "",
-  emailCode: "",
-  nickName: "",
-  rePassword: "",
-});
+const formData = ref({});
 const checkRePassword = (rule, value, callback) => {
   if (!callback) {
     return;
@@ -277,10 +270,11 @@ watch(opType, (newValue, oldValue) => {
     }
 
     formDataRef.value.resetFields();
-    proxy.VueCookies.remove("loginInfo");
+    // proxy.VueCookies.remove("loginInfo");
   });
 });
 watch(dialogConfig, (newValue) => {
+  store.dispatch("showLogin", newValue.isShow);
   newValue.isShow &&
     nextTick(() => {
       changeCheckCode(0);
@@ -421,7 +415,7 @@ const btnClick = () => {
     if (!valid) {
       return;
     }
-    let params = Object.assign({}, formData);
+    let params = Object.assign({}, formData.value);
     // 登录
     if (opType.value === 1) {
       let cookieLoginInfo = proxy.VueCookies.get("loginInfo");
@@ -443,15 +437,16 @@ const btnClick = () => {
         if (!res && res.code !== 200) {
           return;
         }
+
         // 说明现在是登录
-        if (opType == 1) {
+        if (opType.value == 1) {
           const loginInfo = {
             email: params.email,
             password: params.password,
             rememberMe: params.rememberMe,
           };
           if (params.rememberMe) {
-            proxy.VueCookies.set("loginInfo", loginInfo, "7d");
+            proxy.VueCookies.set("loginInfo", loginInfo);
           } else {
             proxy.VueCookies.remove("loginInfo");
           }
