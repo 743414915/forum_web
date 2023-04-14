@@ -10,8 +10,8 @@
     <el-image
       v-if="userId"
       :style="{
-        'width': width + 'px',
-        'height': width + 'px',
+        width: width + 'px',
+        height: width + 'px',
         'border-radius': width * 2 + 'px',
       }"
       :src="getAvatarUrl"
@@ -20,6 +20,7 @@
       loading="lazy"
       @click="goToUcenter"
     ></el-image>
+    <div v-else class="no-login">未登录</div>
   </div>
 </template>
 <script setup>
@@ -54,4 +55,16 @@ const goToUcenter = () => {
 };
 </script>
 <style lang="less" scoped>
+.avatar {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  background: #f0f0f0;
+  .no-login {
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+  }
+}
 </style>

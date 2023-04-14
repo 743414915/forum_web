@@ -130,6 +130,7 @@ const loginOut = () => {
         return;
       }
       proxy.message.success("退出成功！");
+      proxy.VueCookies.remove("loginInfo");
       location.reload();
     })
     .catch((error) => {

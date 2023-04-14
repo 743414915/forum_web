@@ -79,7 +79,13 @@
         </div>
       </div>
       <!-- 评论 -->
-      <div class="comment-panel" id="view-comment"></div>
+      <div class="comment-panel" id="view-comment">
+        <commentList
+          v-if="articleInfo.articleId"
+          :articleId="articleInfo.articleId"
+          :articleUserId="articleInfo.userId"
+        ></commentList>
+      </div>
     </div>
   </div>
   <!-- 左侧快捷操作 -->
@@ -105,10 +111,19 @@
         >
         </span></div
     ></el-badge>
+    <!-- 图片预览 -->
+    <imageViewer ref="imageViewerRef" :imageList="previewImgList"></imageViewer>
   </div>
 </template>
 <script setup>
-import { ref, reactive, getCurrentInstance, onMounted, computed } from "vue";
+import {
+  ref,
+  reactive,
+  getCurrentInstance,
+  onMounted,
+  computed,
+  nextTick,
+} from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 const { proxy } = getCurrentInstance();
@@ -117,7 +132,10 @@ const route = useRoute();
 const store = useStore();
 
 import utils from "@/utils/utils";
-import badgeDescription from "./description";
+import badgeDescription from "./description.js";
+import commentList from "./commentList/commentList.vue";
+import hljs from "highlight.js";
+import "highlight.js/styles/atom-one-light.css";
 
 const api = {
   getArticleDetail: "/forum/getArticleDetail",
@@ -131,8 +149,14 @@ const articleInfo = ref({});
 // 附件
 const attachment = ref({});
 
-//获取用户积分
-const getUserIntegral = (fileId) => {
+// 下载
+const downloadDo = (fileId) => {
+  document.location.href = api.attachmentDownload + `?fileId=${fileId}`;
+  getArticleDetail(route.params.articleId);
+};
+
+//获取用户下载信息
+const getUserDownloadInfo = (fileId) => {
   return proxy.request({
     url: api.getUserDownloadInfo,
     params: { fileId },
@@ -150,19 +174,20 @@ const downloadTheAttachment = (fileId) => {
     attachment.value.integral == 0 ||
     loginUserInfo.userId == articleInfo.userId
   ) {
-    document.location.href = api.attachmentDownload + `?fileId=${fileId}`;
-    getArticleDetail(route.params.articleId);
+    downloadDo(fileId);
     return;
   }
-  getUserIntegral(fileId).then((res) => {
+  getUserDownloadInfo(fileId).then((res) => {
     if (!res || res.code !== 200) {
       return;
     }
+    // 判断该附件是否下载过
+    if (res.data.haveDownload) {
+      downloadDo(fileId);
+      return;
+    }
     // 判断用户积分是否满足附件下载积分
-    if (
-      res.data.userIntegral < attachment.value.integral &&
-      !res.data.haveDownload
-    ) {
+    if (res.data.userIntegral < attachment.value.integral) {
       proxy.message.warning(
         `您的积分不足,无法下载！您的当前积分为：${res.data.userIntegral}`
       );
@@ -171,8 +196,7 @@ const downloadTheAttachment = (fileId) => {
     proxy.confirm(
       `您的当前积分为${res.data.userIntegral},当前下载会消耗${attachment.value.integral}积分,确定下载吗?`,
       () => {
-        document.location.href = api.attachmentDownload + `?fileId=${fileId}`;
-        getArticleDetail(route.params.articleId);
+        downloadDo(fileId);
       }
     );
   });
@@ -201,6 +225,12 @@ const getArticleDetail = (articleId) => {
       articleInfo.value = res.data.forumArticleVO;
       attachment.value = res.data.attachmentVO;
       haveLike.value = res.data.haveLike;
+      store.dispatch("setActivePBoardId", res.data.forumArticleVO.pBoardId);
+      store.dispatch("setActiveBoardId", res.data.forumArticleVO.boardId);
+      // 图片预览
+      imagePreview();
+      // 代码高亮
+      highLightCode();
     });
 };
 
@@ -264,6 +294,36 @@ const badgeClick = (badgeKey) => {
       break;
   }
 };
+
+// 文章图片预览
+const imageViewerRef = ref(null);
+const previewImgList = ref([]);
+const imagePreview = () => {
+  nextTick(() => {
+    const imageNodeList = document
+      .querySelector("#detail")
+      .querySelectorAll("img");
+    const imageList = [];
+    imageNodeList.forEach((item, index) => {
+      const src = item.getAttribute("src");
+      imageList.push(src);
+      item.addEventListener("click", () => {
+        imageViewerRef.value.show(index);
+      });
+    });
+    previewImgList.value = imageList;
+  });
+};
+
+// 代码高亮
+const highLightCode = () => {
+  nextTick(() => {
+    const blocks = document.querySelector("pre code");
+    for (let index = 0; index < blocks && blocks.childElementCount; index++) {
+      hljs.highlightElement(blocks.children[index]);
+    }
+  });
+};
 onMounted(() => {
   getArticleDetail(route.params.articleId);
 });
@@ -316,19 +376,19 @@ onMounted(() => {
         }
       }
       .detail {
+        cursor: pointer;
         padding-top: 15px;
         letter-spacing: 1px;
         line-height: 22px;
-        a {
+        ::v-deep(a) {
           text-decoration: none;
           color: #fbb9df;
           &:hover {
             color: #d56cdf;
           }
         }
-        img {
-          max-width: 90%;
-          cursor: pointer;
+        ::v-deep(img) {
+          max-width: 90% !important;
         }
       }
     }
@@ -370,6 +430,7 @@ onMounted(() => {
     .comment-panel {
       margin-top: 15px;
       background: #fff;
+      padding: 20px;
     }
   }
 }

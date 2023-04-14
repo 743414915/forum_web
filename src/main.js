@@ -18,8 +18,9 @@ import Dialog from "@/components/Dialog/Dialog.vue"
 import Avatar from '@/components/avatar/avatar.vue'
 import cover from '@/components/cover/cover.vue'
 import noData from '@/components/noData/noData.vue'
-import confirm from '@/components/confirm/confirm.js'
+import imageViewer from '@/components/imageViewer/imageViewer.vue'
 import dataList from '@/components/dataList/dataList.vue'
+import confirm from '@/components/confirm/confirm.js'
 import verifyObj from '@/utils/verify.js'
 import message from '@/common/message.js'
 const app = createApp(App);
@@ -41,5 +42,6 @@ app.use(router)
   .component("Avatar", Avatar)
   .component("cover", cover)
   .component("dataList", dataList)
-  .component("noData", noData);
+  .component("noData", noData)
+  .component("imageViewer", imageViewer);
 app.mount('#app');

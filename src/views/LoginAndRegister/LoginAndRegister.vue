@@ -206,7 +206,7 @@ const checkRePassword = (rule, value, callback) => {
   if (!callback) {
     return;
   }
-  if (value !== formData.password) {
+  if (value !== formData.value.password) {
     callback(new Error(rule.message));
   } else {
     callback();
@@ -345,7 +345,7 @@ const showSendMailCodeDialog = () => {
     nextTick(() => {
       changeCheckCode(1);
       formData4SendMailCodeRef.value.resetFields();
-      formData4SendMailCode.email = formData.email;
+      formData4SendMailCode.email = formData.value.email;
     });
   });
 };
@@ -367,7 +367,7 @@ const sendEmailCode = () => {
         },
       })
       .then((res) => {
-        if (res.code != 200) {
+        if (!res && res.code != 200) {
           return;
         }
         proxy.message.success("验证码发送成功,请登陆邮箱查看");
