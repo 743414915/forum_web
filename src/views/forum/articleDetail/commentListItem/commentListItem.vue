@@ -159,8 +159,8 @@ const showReplyPanel = (curData, type) => {
 };
 
 // 评论发布完成
-const afterPostComment = () => {
-  emit("afterPostComment");
+const afterPostComment = (data) => {
+  emit("afterPostComment", data, true);
   emit("hiddenAllReplyHandler");
 };
 

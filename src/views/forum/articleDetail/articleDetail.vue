@@ -218,6 +218,7 @@ const getArticleDetail = (articleId) => {
       params: {
         articleId,
       },
+      showLoading: false,
     })
     .then((res) => {
       if (!res || res.code !== 200) {

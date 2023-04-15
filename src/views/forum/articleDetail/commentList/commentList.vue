@@ -136,8 +136,12 @@ const hiddenAllReplyHandler = () => {
 
 // 评论发布完成
 const emit = defineEmits(["updateCommentCount"]);
-const afterPostComment = () => {
-  loadComment();
+const afterPostComment = (data, isSecCom = false) => {
+  if (isSecCom) {
+    loadComment();
+  } else {
+    commentListInfo.value.list.unshift(data);
+  }
   hiddenAllReplyHandler();
   emit("updateCommentCount");
 };

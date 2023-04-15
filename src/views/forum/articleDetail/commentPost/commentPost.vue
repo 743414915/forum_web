@@ -120,7 +120,7 @@ const postCommentDo = () => {
         proxy.message.success("评论发表成功！");
         formDataRef.value.resetFields();
         removeCommentImg();
-        emit("afterPostComment");
+        emit("afterPostComment", res.data);
       });
   });
 };
