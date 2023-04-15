@@ -84,6 +84,7 @@
           v-if="articleInfo.articleId"
           :articleId="articleInfo.articleId"
           :articleUserId="articleInfo.userId"
+          @updateCommentCount="updateCommentCount"
         ></commentList>
       </div>
     </div>
@@ -172,7 +173,7 @@ const downloadTheAttachment = (fileId) => {
   // 当前附件下载不需要积分
   if (
     attachment.value.integral == 0 ||
-    loginUserInfo.userId == articleInfo.userId
+    loginUserInfo.userId == articleInfo.value.userId
   ) {
     downloadDo(fileId);
     return;
@@ -246,6 +247,10 @@ const quickPanelLeft = computed(() => {
   }
   return left;
 });
+// 评论完之后快捷操作评论数更新
+const updateCommentCount = () => {
+  getArticleDetail(route.params.articleId);
+};
 
 // 点赞
 const doLikeHandler = () => {

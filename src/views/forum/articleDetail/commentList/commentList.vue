@@ -4,24 +4,32 @@
       <div class="comment-title">
         <div class="title">
           <span>评论</span>
-          <span class="count">0</span>
+          <span class="count">{{ commentListInfo.totalCount }}</span>
         </div>
         <div class="tab">
-          <span>热榜</span>
+          <span
+            @click="orderChange(0)"
+            :class="['tabitem', orderType == 0 ? 'active' : '']"
+            >热榜</span
+          >
           <el-divider direction="vertical"></el-divider>
-          <span>最新</span>
+          <span
+            @click="orderChange(1)"
+            :class="['tabitem', orderType == 1 ? 'active' : '']"
+            >最新</span
+          >
         </div>
       </div>
       <!-- 发送评论 -->
       <div class="comment-form-panel">
-        <postComment
+        <commentPost
           :articleId="articleId"
           :avatarWidth="50"
           :userId="currentUserInfo.userId"
           :isShowInsertImage="isShowInsertImage"
           :placeholder="placeholder"
           @afterPostComment="afterPostComment"
-        ></postComment>
+        ></commentPost>
       </div>
     </div>
     <div class="comment-list">
@@ -37,6 +45,9 @@
             :commentData="data"
             :currentUserId="currentUserInfo.userId"
             @hiddenAllReply="hiddenAllReplyHandler"
+            @afterPostComment="afterPostComment"
+            @hiddenAllReplyHandler="hiddenAllReplyHandler"
+            @reloadData="loadComment"
           ></commentListItem>
         </template>
       </dataList>
@@ -50,7 +61,7 @@ import { useStore } from "vuex";
 const store = useStore();
 
 import commentListItem from "../commentListItem/commentListItem.vue";
-import postComment from "../postComment/postComment.vue";
+import commentPost from "../commentPost/commentPost.vue";
 
 const props = defineProps({
   articleId: {
@@ -62,12 +73,9 @@ const props = defineProps({
     default: "",
   },
 });
-const placeholder = "请文明发言，做一个合格的二次元";
+const placeholder = "请荔枝发言，做一个合格的二次元";
 const api = {
   loadComment: "/comment/loadComment",
-  postComment: "/comment/postComment",
-  doLike: "/comment/doLike",
-  changeTopType: "/comment/changeTopType",
 };
 
 const isShowInsertImage = computed(() => {
@@ -76,6 +84,10 @@ const isShowInsertImage = computed(() => {
 
 // 排序
 const orderType = ref(0);
+const orderChange = (type) => {
+  orderType.value = type;
+  loadComment();
+};
 
 // 评论列表
 const loading = ref(null);
@@ -91,6 +103,7 @@ const loadComment = () => {
     .request({
       url: api.loadComment,
       params,
+      showLoading: false,
     })
     .then((res) => {
       loading.value = false;
@@ -115,14 +128,18 @@ loadComment();
 
 // 隐藏所有回复框
 const hiddenAllReplyHandler = () => {
-  commentListInfo.value.list.forEach((element) => {
-    element.showReply = false;
-  });
+  commentListInfo.value.list &&
+    commentListInfo.value.list.forEach((element) => {
+      element.showReply = false;
+    });
 };
 
 // 评论发布完成
-const afterPostComment = (resultData) => {
-  commentListInfo.value.list.unshift(resultData);
+const emit = defineEmits(["updateCommentCount"]);
+const afterPostComment = () => {
+  loadComment();
+  hiddenAllReplyHandler();
+  emit("updateCommentCount");
 };
 </script>
 <style lang="less" scoped>
@@ -136,6 +153,14 @@ const afterPostComment = (resultData) => {
         .count {
           padding: 0 10px;
           font-size: 14px;
+        }
+      }
+      .tab {
+        .tabitem {
+          cursor: pointer;
+        }
+        .active {
+          color: #f69;
         }
       }
     }

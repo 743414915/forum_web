@@ -29,7 +29,7 @@ app.config.globalProperties.VueCookies = VueCookies;
 app.config.globalProperties.globalInfo = {
   bodyWidth: 60,
   avatarUrl: '/api/file/getAvatar/',
-  imageUrl: 'api/file/getImage/'
+  imageUrl: '/api/file/getImage/'
 };
 app.config.globalProperties.Verify = verifyObj
 app.config.globalProperties.message = message
