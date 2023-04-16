@@ -20,7 +20,12 @@
         </div>
         <!-- 登陆注册用户信息部分 -->
         <div class="user-info-panel">
-          <el-button type="primary" color="rgb(255,182,193)" class="op-btn">
+          <el-button
+            type="primary"
+            color="rgb(255,182,193)"
+            class="op-btn"
+            @click="newPost"
+          >
             <span>发帖</span>
             <span class="iconfont icon-add"></span>
           </el-button>
@@ -267,6 +272,16 @@ watch(
   },
   { immediate: true, deep: true }
 );
+
+// 发帖
+const newPost = () => {
+  const loginUserInfo = store.getters.getLoginUserInfo;
+  if (!loginUserInfo) {
+    store.dispatch("showLogin", true);
+    return;
+  }
+  router.push("/newPost");
+};
 
 onMounted(() => {
   initScroll();

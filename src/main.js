@@ -20,6 +20,10 @@ import cover from '@/components/cover/cover.vue'
 import noData from '@/components/noData/noData.vue'
 import imageViewer from '@/components/imageViewer/imageViewer.vue'
 import dataList from '@/components/dataList/dataList.vue'
+import editorMarkdown from '@/components/editorMarkdown/editorMarkdown.vue'
+import editorHtml from '@/components/editorHtml/editorHtml.vue'
+import coverUpload from '@/components/coverUpload/coverUpload.vue'
+import attachmentSelector from '@/components/attachmentSelector/attachmentSelector.vue'
 import confirm from '@/components/confirm/confirm.js'
 import verifyObj from '@/utils/verify.js'
 import message from '@/common/message.js'
@@ -43,5 +47,9 @@ app.use(router)
   .component("cover", cover)
   .component("dataList", dataList)
   .component("noData", noData)
-  .component("imageViewer", imageViewer);
+  .component("imageViewer", imageViewer)
+  .component("editorMarkdown", editorMarkdown)
+  .component("editorHtml", editorHtml)
+  .component("coverUpload", coverUpload)
+  .component("attachmentSelector", attachmentSelector);
 app.mount('#app');
