@@ -7,6 +7,7 @@
       :include-level="[1, 2, 3, 4, 5, 6]"
       @upload-image="uploadImageHandler"
       @change="change"
+      @save="save"
     ></v-md-editor>
   </div>
 </template>
@@ -34,10 +35,16 @@ const props = defineProps({
     default: 500,
   },
 });
+
+let htmlContents = "";
 const emit = defineEmits();
 const change = (markdownContent, htmlContent) => {
   emit("update:modelValue", markdownContent);
-  emit("htmlContent", htmlContent);
+  htmlContents = htmlContent;
+};
+
+const save = () => {
+  emit("markdownSave", htmlContents);
 };
 
 const uploadImageHandler = (event, insertImage, files) => {

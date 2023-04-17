@@ -7,7 +7,7 @@
       :multiple="false"
       :http-request="uploadImage"
     >
-      <div class="cover-upload-btn">
+      <div class="cover-upload-btn" :style="coverUploadBtnBorder">
         <template v-if="localFile">
           <img :src="localFile" alt="" />
         </template>
@@ -41,10 +41,17 @@ const props = defineProps({
   },
 });
 
+const coverUploadBtnBorder = computed(() => {
+  if (props.modelValue && props.modelValue.imageUrl) {
+    return "";
+  }
+  return "border: 1px solid rgb(251, 185, 223);";
+});
+
 const noLocalImgSrc = computed(() => {
-  return imageUrlPrefix
-    ? imageUrlPrefix
-    : proxy.globalInfo.imageUrl + modelValue.imageUrl;
+  return props.imageUrlPrefix
+    ? props.imageUrlPrefix
+    : proxy.globalInfo.imageUrl + props.modelValue.imageUrl;
 });
 
 const localFile = ref(null);
@@ -67,7 +74,6 @@ const uploadImage = ({ file }) => {
     justify-content: center;
     width: 150px;
     height: 150px;
-    border: 1px solid rgb(251, 185, 223);
     background: rgba(251, 185, 223, 0.1);
     .iconfont {
       font-size: 50px;

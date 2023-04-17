@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container-body center articleDetail"
+    class="container-body center article-detail"
     :style="{ width: proxy.globalInfo.bodyWidth + '%' }"
     v-if="!utils.isObjEmpty(articleInfo)"
     ref="articleDetailRef"
@@ -335,7 +335,7 @@ onMounted(() => {
 });
 </script>
 <style lang="less" scoped>
-.articleDetail {
+.article-detail {
   height: 2000px;
   .board-info {
     padding: 10px 0;

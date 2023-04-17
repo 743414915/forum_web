@@ -29,6 +29,7 @@
               ref="editorMarkdownRef"
               v-show="editorType"
               v-model="formData.markdownContent"
+              @markdownSave="markdownSave"
             ></editorMarkdown>
             <editorHtml
               :height="htmlEditorHright"
@@ -76,7 +77,7 @@
                 placeholder="提示信息"
                 type="textarea"
                 :rows="5"
-                :maxlength="150"
+                :maxlength="200"
                 resize="none"
                 show-word-limit
                 v-model="formData.summary"
@@ -88,12 +89,26 @@
               ></attachmentSelector>
             </el-form-item>
             <!--input输入-->
+            <el-form-item
+              label="积分"
+              prop="integral"
+              v-if="formData.attachment"
+            >
+              <el-input
+                clearable
+                placeholder="请输入积分"
+                v-model="formData.integral"
+              ></el-input>
+              <span class="tips">tips：附件下载积分,0表示无需积分下载</span>
+            </el-form-item>
+            <!--input输入-->
             <el-form-item label="" prop="">
               <el-button
                 color="rgb(255,182,193)"
                 type="primary"
                 :style="{ width: '100%' }"
                 class="save-btn"
+                @click="postHandler"
                 >保存</el-button
               >
             </el-form-item>
@@ -159,6 +174,25 @@ const getArticleDetail = () => {
           let articleInfo = res.data.forumArticleVO;
           // 设置编辑器
           editorType.value = articleInfo.editorType;
+          // 设置板块信息
+          articleInfo.boardIds = [];
+          articleInfo.boardIds.push(articleInfo.pBoardId);
+          if (articleInfo.boardId != null && articleInfo.pBoardId) {
+            articleInfo.boardIds.push(articleInfo.boardId);
+          }
+          // 设置封面信息
+          if (articleInfo.cover) {
+            articleInfo.cover = { imageUrl: articleInfo.cover };
+          }
+          // 设置附件
+          const attachmentVO = res.data.attachmentVO;
+          if (attachmentVO) {
+            articleInfo.attachment = {
+              name: attachmentVO.fileName,
+            };
+            articleInfo.integral = attachmentVO.integral;
+          }
+
           formData.value = articleInfo;
         });
     } else {
@@ -168,6 +202,12 @@ const getArticleDetail = () => {
     }
   });
 };
+
+// 设置markdown编辑器的富文本信息
+const markdownSave = (htmlContents) => {
+  formData.value.content = htmlContents;
+};
+
 watch(
   () => route,
   (newVal, oldVal) => {
@@ -185,7 +225,70 @@ watch(
 const formData = ref({});
 const formDataRef = ref();
 const rules = {
-  title: [{ required: true, message: "请输入内容" }],
+  title: [
+    { required: true, message: "请输入标题" },
+    { max: 150, message: "标题最大为150个字符" },
+  ],
+  boardIds: [{ required: true, message: "请选择板块" }],
+  content: [{ required: true, message: "请输入正文" }],
+  summary: [{ max: 200, message: "内容最大为200个字符" }],
+  integral: [
+    { required: true, message: "请输入下载所需积分" },
+    { validator: proxy.Verify.number, message: "积分只能是数字" },
+  ],
+};
+
+// 保存
+const postHandler = () => {
+  formDataRef.value.validate((valid) => {
+    if (!valid) {
+      return;
+    }
+    let params = {};
+    Object.assign(params, formData.value);
+    // 设置板块Id
+    if (params.boardIds.length == 1) {
+      params.pBoardId = params.boardIds[0];
+    } else if (params.boardIds.length == 2) {
+      params.pBoardId = params.boardIds[0];
+      params.boardId = params.boardIds[1];
+    }
+    delete params.boardIds;
+    // 设置编辑器类型
+    params.editorType = editorType.value;
+    // 获取内容
+    const contentText = params.content.replace(/<(?!img).*?>/g, "");
+    if (contentText == "") {
+      proxy.message.warning("正文不能为空");
+      return;
+    }
+    if (params.attachment != null) {
+      params.attachmentType = 1;
+    } else {
+      params.attachmentType = 0;
+    }
+    // 封面
+    if (!(params.cover instanceof File)) {
+      delete params.cover;
+    }
+    // 附件不是文件类型，值设置为空
+    if (!(params.attachment instanceof File)) {
+      delete params.attachment;
+    }
+    let url = params.articleId ? api.updateArticle : api.postArticle;
+    proxy
+      .request({
+        url,
+        params,
+      })
+      .then((res) => {
+        if (!res || res.code !== 200) {
+          return;
+        }
+        proxy.message.success("保存成功！");
+        router.push(`/post/${res.data}`);
+      });
+  });
 };
 
 // 板块信息
@@ -250,6 +353,12 @@ const changeEditor = () => {
       .setting-inner {
         max-height: calc(100vh - 100px);
         overflow: auto;
+        .el-form-item {
+          align-items: start;
+        }
+        .tips {
+          color: #ccc;
+        }
         .save-btn {
           color: #fff;
         }
