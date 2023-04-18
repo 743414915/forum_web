@@ -50,7 +50,7 @@ const coverUploadBtnBorder = computed(() => {
 
 const noLocalImgSrc = computed(() => {
   return props.imageUrlPrefix
-    ? props.imageUrlPrefix
+    ? props.imageUrlPrefix + props.modelValue.imageUrl
     : proxy.globalInfo.imageUrl + props.modelValue.imageUrl;
 });
 

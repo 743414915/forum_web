@@ -5,6 +5,7 @@
     v-if="!utils.isObjEmpty(articleInfo)"
     ref="articleDetailRef"
   >
+    <!-- 板块导航 -->
     <div class="board-info">
       <router-link :to="`/forum/${articleInfo.pBoardId}`" class="a-link">{{
         articleInfo.pBoardName
@@ -20,10 +21,14 @@
       </template>
       <span class="title">{{ articleInfo?.title }}</span>
     </div>
+    <!-- 文章详情 -->
     <div class="detail-container">
       <div class="artcile-detail">
         <!-- 标题 -->
-        <div class="title">{{ articleInfo.title }}</div>
+        <div class="title">
+          <span>{{ articleInfo.title }}</span>
+          <el-tag v-if="!articleInfo.status" type="danger">待审核</el-tag>
+        </div>
         <!-- 用户信息 -->
         <div class="user-info">
           <avatar :userId="articleInfo.userId" :width="50"></avatar>
@@ -43,6 +48,14 @@
                   articleInfo.readCount == 0 ? "阅读" : articleInfo.readCount
                 }}
               </span>
+              <router-link
+                v-if="articleInfo.userId === currentUserInfo.userId"
+                :to="`/editPost/${articleInfo.articleId}`"
+                class="a-link btn-edit"
+                title="编辑"
+              >
+                <span class="iconfont icon-edit"></span>
+              </router-link>
             </div>
           </div>
         </div>
@@ -88,6 +101,27 @@
         ></commentList>
       </div>
     </div>
+    <!-- 目录 -->
+    <div class="toc-panel">
+      <div class="top-containner">
+        <div class="toc-title">目录</div>
+        <div class="toc-list">
+          <template v-if="!tocArray.length">
+            <div class="no-toc">未解析到目录</div>
+          </template>
+          <template v-else>
+            <div v-for="(item, index) in tocArray" :key="item + index">
+              <span
+                @click="gotoAnchor(item.id)"
+                :class="['toc-item', { active: item.id === anchorId }]"
+                :style="{ 'padding-left': item.level * 15 + 'px' }"
+                >{{ item.title }}</span
+              >
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
   </div>
   <!-- 左侧快捷操作 -->
   <div
@@ -122,8 +156,10 @@ import {
   reactive,
   getCurrentInstance,
   onMounted,
+  onUnmounted,
   computed,
   nextTick,
+  watch,
 } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
@@ -145,6 +181,8 @@ const api = {
   attachmentDownload: "/api/forum/attachmentDownload",
 };
 
+// 当前登录用户信息
+const currentUserInfo = ref({});
 // 文章详情
 const articleInfo = ref({});
 // 附件
@@ -165,15 +203,14 @@ const getUserDownloadInfo = (fileId) => {
 };
 // 下载附件
 const downloadTheAttachment = (fileId) => {
-  const loginUserInfo = store.getters.getLoginUserInfo;
-  if (!loginUserInfo) {
+  if (!currentUserInfo.value) {
     store.dispatch("showLogin", true);
     return;
   }
   // 当前附件下载不需要积分
   if (
     attachment.value.integral == 0 ||
-    loginUserInfo.userId == articleInfo.value.userId
+    currentUserInfo.value.userId == articleInfo.value.userId
   ) {
     downloadDo(fileId);
     return;
@@ -233,6 +270,8 @@ const getArticleDetail = (articleId) => {
       imagePreview();
       // 代码高亮
       highLightCode();
+      // 生成目录
+      makeToc();
     });
 };
 
@@ -330,13 +369,83 @@ const highLightCode = () => {
     }
   });
 };
+// 获取目录
+const tocArray = ref([]);
+const makeToc = () => {
+  nextTick(() => {
+    const tocTags = ["H1", "H2", "H3", "H4", "H5", "H6"];
+    // 获取所有h标签
+    const contentDom = document.querySelector("#detail");
+    const childNodes = contentDom.childNodes;
+    let index = 0;
+    childNodes.forEach((item) => {
+      let tagName = item.tagName;
+      if (tagName === undefined || !tocTags.includes(tagName.toUpperCase())) {
+        return true;
+      }
+      index++;
+      let id = "toc" + index;
+      item.setAttribute("id", id);
+      tocArray.value.push({
+        id,
+        title: item.innerText,
+        level: Number(tagName.substring(1)) - 1,
+        offsetTop: item.offsetTop,
+      });
+    });
+  });
+};
+const anchorId = ref(null);
+const gotoAnchor = (domId) => {
+  const dom = document.querySelector("#" + domId);
+  dom.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+};
+const listenerScroll = () => {
+  let currentScrollTop = getScrollTop();
+  tocArray.value.some((item, index) => {
+    if (
+      (index < tocArray.value.length - 1 &&
+        currentScrollTop >= tocArray.value[index].offsetTop &&
+        currentScrollTop < tocArray.value[index + 1].offsetTop) ||
+      (index == tocArray.value.length - 1 &&
+        currentScrollTop < tocArray.value[index].offsetTop)
+    ) {
+      anchorId.value = item.id;
+      return;
+    }
+  });
+};
+// 获取滚动条的高度
+const getScrollTop = () => {
+  let scrollTop =
+    document.documentElement.scrollTop ||
+    window.pageYOffset ||
+    document.body.scrollTop;
+  return scrollTop;
+};
+
+// 监听登录用户
+watch(
+  () => store.state.loginUserInfo,
+  (newVal, oldVal) => {
+    currentUserInfo.value = newVal || {};
+  },
+  { immediate: true, deep: true }
+);
 onMounted(() => {
   getArticleDetail(route.params.articleId);
+  window.addEventListener("scroll", listenerScroll, false);
+});
+onUnmounted(() => {
+  window.removeEventListener("scroll", listenerScroll, false);
 });
 </script>
 <style lang="less" scoped>
 .article-detail {
-  height: 2000px;
+  position: relative;
   .board-info {
     padding: 10px 0;
     .icon-right {
@@ -378,11 +487,17 @@ onMounted(() => {
                 padding-right: 5px;
               }
             }
+            .btn-edit {
+              margin-left: 8px;
+              .icon-edit {
+                font-size: 14px;
+              }
+            }
           }
         }
       }
       .detail {
-        cursor: pointer;
+        // cursor: pointer;
         padding-top: 15px;
         letter-spacing: 1px;
         line-height: 22px;
@@ -439,8 +554,53 @@ onMounted(() => {
       padding: 20px;
     }
   }
+  .toc-panel {
+    position: absolute;
+    top: 41px;
+    left: calc(100% + 10px);
+    width: 285px;
+    .top-containner {
+      position: fixed;
+      width: 285px;
+      background: #fff;
+      .toc-title {
+        border-bottom: 3px solid rgba(251, 185, 223, 0.2);
+        padding: 10px;
+      }
+      .toc-list {
+        max-height: calc(100vh - 20px);
+        overflow: hidden;
+        padding: 5px;
+        .no-toc {
+          text-align: center;
+          color: #d56cdf;
+          line-height: 40px;
+          font-size: 13px;
+        }
+        .toc-item {
+          cursor: pointer;
+          display: block;
+          line-height: 35px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          color: #fbb9df;
+          border-radius: 3px;
+          font-size: 14px;
+          border-left: 2px solid #fff;
+          &:hover {
+            color: #fff;
+            background: #f7a4d4;
+          }
+          &.active {
+            border-left: 2px solid #d900ec;
+            border-radius: 0 3px 3px 0;
+          }
+        }
+      }
+    }
+  }
 }
-
 .quick-panel {
   text-align: center;
   position: fixed;

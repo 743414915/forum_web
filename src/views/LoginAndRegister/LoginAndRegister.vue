@@ -274,7 +274,6 @@ watch(opType, (newValue, oldValue) => {
   });
 });
 watch(dialogConfig, (newValue) => {
-  store.dispatch("showLogin", newValue.isShow);
   newValue.isShow &&
     nextTick(() => {
       changeCheckCode(0);
@@ -404,6 +403,7 @@ const sendAfterBySuccess = (res) => {
     dialogConfig.isShow = false;
     message = "登陆成功";
     store.commit("updateLoginUserInfo", res.data);
+    location.reload();
   } else if (opType.value === 2) {
     message = "重置密码成功，去登陆";
   }

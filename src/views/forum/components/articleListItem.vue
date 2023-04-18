@@ -15,7 +15,7 @@
             data.pBoardName
           }}</router-link>
           <template v-if="data.boardId">
-            <span>&nbsp;/&nbsp;</span>
+            <span class="separator">&nbsp;/&nbsp;</span>
             <router-link
               :to="`/forum/${data.pBoardId}/${data.boardId}`"
               class="a-link"
@@ -69,6 +69,9 @@ const props = defineProps({
         display: flex;
         align-items: center;
         font-size: 14px;
+        .separator{
+          color: #fbb9df;
+        }
         .a-link {
           margin-left: 5px;
         }

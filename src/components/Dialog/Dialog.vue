@@ -94,7 +94,7 @@ const close = () => {
     .dialog-footer {
       text-align: right;
       padding: 10px 20px;
-      .el-button:not(:first-child) {
+      .el-button {
         color: #fff;
       }
     }
