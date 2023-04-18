@@ -18,6 +18,9 @@ const getters = {
   },
   getActiveBoardId(state) {
     return state.activeBoardId;
+  },
+  getMessageCountInfo(state) {
+    return state.messageCountInfo;
   }
 };
 

@@ -8,8 +8,12 @@
             v-for="(item, index) in getDropdowns"
             :key="item + index"
             :command="item.key"
-            >{{ item.message }}</el-dropdown-item
           >
+            <div class="dropdown-menu-panel">
+              <span class="text">{{ item.message }}</span>
+              <slot name="icon" :data="item"></slot>
+            </div>
+          </el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
@@ -37,5 +41,13 @@ const handleCommand = (command) => {
 <style lang="less" scoped>
 .user-info-dropdown {
   display: flex;
+}
+.dropdown-menu-panel {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  .text {
+    flex: 1;
+  }
 }
 </style>

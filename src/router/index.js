@@ -5,6 +5,7 @@ import articleList from '@/views/forum/articleList.vue';
 import articleDetail from '@/views/forum/articleDetail/articleDetail.vue';
 import editPost from '@/views/forum/editPost/editPost.vue';
 import uCenter from '@/views/uCenter/uCenter.vue';
+import messageList from '@/views/uCenter/components/messageList/messageList.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +49,10 @@ const router = createRouter({
           path: "/user/:userId",
           name: "用户信息",
           component: uCenter,
+        }, {
+          path: "/user/message/:type",
+          name: "消息中心",
+          component: messageList,
         }
       ]
     }

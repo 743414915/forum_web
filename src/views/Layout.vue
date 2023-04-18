@@ -37,15 +37,32 @@
           <!-- 显示用户信息 -->
           <template v-if="userInfo.userId">
             <div class="message-info">
-              <userInfoDropdown :dropdowns="messageDrowdowns">
-                <el-badge :value="12" class="item">
+              <userInfoDropdown
+                :dropdowns="messageDropdowns"
+                @handleCommand="messageHandleCommand"
+              >
+                <el-badge
+                  :value="messageCountInfo.total"
+                  :hidden="
+                    messageCountInfo.total == null ||
+                    messageCountInfo.total == 0
+                  "
+                  class="message-item"
+                >
                   <div class="iconfont icon-message"></div>
                 </el-badge>
+                <template #icon="{ data }">
+                  <span class="count-tag" v-if="messageCountInfo[data.key]">{{
+                    messageCountInfo[data.key] > 99
+                      ? "99+"
+                      : messageCountInfo[data.key]
+                  }}</span>
+                </template>
               </userInfoDropdown>
             </div>
             <div class="user-info">
               <userInfoDropdown
-                :dropdowns="avatarDrowdowns"
+                :dropdowns="avatarDropdowns"
                 @handleCommand="avatarHandleCommand"
               >
                 <Avatar :userId="userInfo.userId" :width="50"></Avatar>
@@ -84,6 +101,7 @@
 </template>
 
 <script setup>
+import description from "./description.js";
 import LoginAndRegister from "@/views/LoginAndRegister/LoginAndRegister.vue";
 import plateInformation from "@/views/plateInformation/plateInformation.vue";
 import userInfoDropdown from "@/views/LoginAndRegister/components/userInfoDropdown/userInfoDropdown.vue";
@@ -108,47 +126,44 @@ const api = {
   getUserInfo: "/account/getUserInfo",
   loadBoard: "/board/loadBoard",
   logout: "/account/logout",
+  loadMessageCount: "/ucenter/getMessageCount",
 };
 
 // 铃铛下拉列表
-const messageDrowdowns = reactive([
-  { key: "replyToMe", message: "回复我的" },
-  { key: "likedTheArticle", message: "赞了我的文章" },
-  { key: "downloadTheAttachment", message: "下载了我的附件" },
-  { key: "likedTheComment", message: "赞了我的评论" },
-  { key: "systemMessages", message: "系统消息" },
-]);
+const messageDropdowns = reactive(description.messageDropdowns);
 
 //头像下拉列表
-const avatarDrowdowns = reactive([
-  { key: "myPage", message: "我的主页" },
-  { key: "quit", message: "退出" },
-]);
+const avatarDropdowns = reactive(description.avatarDropdowns);
 // 退出登录
-const loginOut = () => {
-  proxy
-    .request({
-      url: api.logout,
-    })
-    .then((res) => {
-      if (!res || res.code !== 200) {
-        return;
-      }
-      proxy.message.success("退出成功！");
-      proxy.VueCookies.remove("loginInfo");
-      location.reload();
-    })
-    .catch((error) => {
-      proxy.message.error("退出失败，请重试！");
-    });
+const logout = () => {
+  proxy.confirm("确定要退出吗？", () => {
+    proxy
+      .request({
+        url: api.logout,
+      })
+      .then((res) => {
+        if (!res || res.code !== 200) {
+          return;
+        }
+        store.dispatch("updateLoginUserInfo", null);
+        proxy.message.success("退出成功！");
+        proxy.VueCookies.remove("loginInfo");
+        router.go(0);
+      })
+      .catch((error) => {
+        proxy.message.error("退出失败，请重试！");
+      });
+  });
 };
 // 点击头像下拉列表菜单项
 const avatarHandleCommand = (command) => {
   switch (command) {
     case "quit":
-      loginOut();
+      logout();
       break;
-
+    case "myPage":
+      gotoUCenter();
+      break;
     default:
       break;
   }
@@ -256,6 +271,7 @@ watch(
   (newVal, oldVal) => {
     if (newVal !== undefined && newVal !== null) {
       userInfo.value = newVal;
+      loadMessageCount();
     } else {
       userInfo.value = {};
     }
@@ -283,6 +299,35 @@ const newPost = () => {
   router.push("/newPost");
 };
 
+const gotoUCenter = () => {
+  router.push(`/user/${userInfo.value.userId}`);
+};
+
+// 消息相关
+const messageHandleCommand = (type) => {
+  router.push(`/user/message/${type}`);
+};
+
+const messageCountInfo = ref({});
+const loadMessageCount = () => {
+  proxy
+    .request({
+      url: api.loadMessageCount,
+    })
+    .then((res) => {
+      if (!res || res.code !== 200) {
+        return;
+      }
+      store.dispatch("updateMessageCountInfo", res.data);
+    });
+};
+watch(
+  () => store.state.messageCountInfo,
+  (newVal, oldVal) => {
+    messageCountInfo.value = newVal || {};
+  },
+  { immediate: true, deep: true }
+);
 onMounted(() => {
   initScroll();
   getUserInfo();
@@ -357,5 +402,21 @@ onUnmounted(() => {
     margin-top: 60px;
     position: relative;
   }
+}
+
+.el-dropdown-menu__item {
+  justify-content: space-around;
+}
+
+.count-tag {
+  display: inline-block;
+  min-width: 20px;
+  height: 20px;
+  background: #f56c6c;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 13px;
+  text-align: center;
+  line-height: 20px;
 }
 </style>

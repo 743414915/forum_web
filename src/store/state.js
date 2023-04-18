@@ -8,7 +8,9 @@ const state = {
   // 当前一级板块
   activePBoardId: 0,
   // 当前二级板块
-  activeBoardId: 0
+  activeBoardId: 0,
+  // 消息数量
+  messageCountInfo: {}
 };
 
 export default state;

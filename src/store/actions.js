@@ -14,5 +14,11 @@ const actions = {
   setActiveBoardId: ({ commit }, payload) => {
     commit('setActiveBoardId', payload);
   },
+  updateMessageCountInfo: ({ commit }, payload) => {
+    commit('updateMessageCountInfo', payload);
+  },
+  readMessage: ({ commit }, payload) => {
+    commit('readMessage', payload);
+  },
 }
 export default actions;

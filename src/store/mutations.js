@@ -14,6 +14,13 @@ const mutations = {
   setActiveBoardId(state, activeBoardId) {
     state.activeBoardId = activeBoardId;
   },
+  updateMessageCountInfo(state, messageCountInfo) {
+    state.messageCountInfo = messageCountInfo;
+  },
+  readMessage(state, value) {
+    state.messageCountInfo.total = state.messageCountInfo.total - state.messageCountInfo[value]
+    state.messageCountInfo[value] = 0;
+  }
 };
 
 export default mutations;

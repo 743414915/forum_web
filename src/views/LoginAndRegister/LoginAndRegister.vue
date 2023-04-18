@@ -274,6 +274,7 @@ watch(opType, (newValue, oldValue) => {
   });
 });
 watch(dialogConfig, (newValue) => {
+  // store.dispatch("showLogin", newValue.isShow);
   newValue.isShow &&
     nextTick(() => {
       changeCheckCode(0);
