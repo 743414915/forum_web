@@ -17,9 +17,12 @@ const mutations = {
   updateMessageCountInfo(state, messageCountInfo) {
     state.messageCountInfo = messageCountInfo;
   },
-  readMessage(state, value) {
-    state.messageCountInfo.total = state.messageCountInfo.total - state.messageCountInfo[value]
-    state.messageCountInfo[value] = 0;
+  readMessage(state, key) {
+    state.messageCountInfo.total = state.messageCountInfo.total - state.messageCountInfo[key]
+    state.messageCountInfo[key] = 0;
+  },
+  saveSysSetting(state, sysSetting) {
+    state.sysSetting = sysSetting;
   }
 };
 

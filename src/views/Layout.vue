@@ -29,7 +29,12 @@
             <span>发帖</span>
             <span class="iconfont icon-add"></span>
           </el-button>
-          <el-button type="primary" color="rgb(255,182,193)" class="op-btn">
+          <el-button
+            type="primary"
+            color="rgb(255,182,193)"
+            class="op-btn"
+            @click="toSearch"
+          >
             <span>搜索</span>
             <span class="iconfont icon-search"></span>
           </el-button>
@@ -65,7 +70,11 @@
                 :dropdowns="avatarDropdowns"
                 @handleCommand="avatarHandleCommand"
               >
-                <Avatar :userId="userInfo.userId" :width="50"></Avatar>
+                <Avatar
+                  :addLink="false"
+                  :userId="userInfo.userId"
+                  :width="50"
+                ></Avatar>
               </userInfoDropdown>
             </div>
           </template>
@@ -95,8 +104,47 @@
     <div class="body-content">
       <router-view ref="sss"></router-view>
     </div>
+    <div class="footer" v-if="showFooter">
+      <div
+        class="footer-content"
+        :style="{ width: proxy.globalInfo.bodyWidth + '%' }"
+      >
+        <el-row>
+          <el-col :span="6" class="item">
+            <div class="logo">
+              <div class="logo-letter">
+                <span
+                  v-for="(item, index) in logoInfo"
+                  :style="{ color: item.color }"
+                  :key="item + index"
+                  >{{ item.letter }}</span
+                >
+              </div>
+              <div class="info">一个动漫网站</div>
+            </div>
+          </el-col>
+          <el-col :span="6" class="item">
+            <div class="title">网站相关</div>
+            <div>
+              <a href="###" class="a-link">网站相关</a>
+              <a href="###" class="a-link">网站相关</a>
+              <a href="###" class="a-link">网站相关</a>
+              <a href="###" class="a-link">网站相关</a>
+            </div>
+          </el-col>
+          <el-col :span="6" class="item">
+            <div class="title">友情链接</div></el-col
+          >
+          <el-col :span="6" class="item">
+            <div class="title">网站相关</div></el-col
+          >
+        </el-row>
+      </div>
+    </div>
     <!-- 登录、注册 -->
     <LoginAndRegister ref="loginAndRegisterRef"></LoginAndRegister>
+    <!-- 回到顶部 -->
+    <el-backtop :right="100" :bottom="100"></el-backtop>
   </div>
 </template>
 
@@ -127,6 +175,7 @@ const api = {
   loadBoard: "/board/loadBoard",
   logout: "/account/logout",
   loadMessageCount: "/ucenter/getMessageCount",
+  getSysSetting: "/getSysSetting",
 };
 
 // 铃铛下拉列表
@@ -147,7 +196,6 @@ const logout = () => {
         }
         store.dispatch("updateLoginUserInfo", null);
         proxy.message.success("退出成功！");
-        proxy.VueCookies.remove("loginInfo");
         router.go(0);
       })
       .catch((error) => {
@@ -328,7 +376,42 @@ watch(
   },
   { immediate: true, deep: true }
 );
+
+// 获取系统配置
+const loadSysSetting = () => {
+  proxy
+    .request({
+      url: api.getSysSetting,
+    })
+    .then((res) => {
+      if (!res || res.code !== 200) {
+        return;
+      }
+      store.dispatch("saveSysSetting", res.data);
+    });
+};
+
+// 搜索
+const toSearch = () => {
+  router.push("/search");
+};
+
+// 是否展示底部
+const showFooter = ref(true);
+watch(
+  () => route.path,
+  (newVal, oldVal) => {
+    if (newVal.indexOf("newPost") != -1 || newVal.indexOf("editPost") != -1) {
+      showFooter.value = false;
+    } else {
+      showFooter.value = true;
+    }
+  },
+  { immediate: true, deep: true }
+);
+
 onMounted(() => {
+  loadSysSetting();
   initScroll();
   getUserInfo();
   loadBoard();
@@ -401,6 +484,41 @@ onUnmounted(() => {
   .body-content {
     margin-top: 60px;
     position: relative;
+    min-height: calc(100vh - 210px);
+  }
+  .footer {
+    margin-top: 10px;
+    background: rgba(251, 185, 223, 0.3);
+    height: 140px;
+    .footer-content {
+      margin: 0 auto;
+      padding-top: 10px;
+      .item {
+        text-align: left;
+        > div {
+          display: flex;
+          flex-direction: column;
+          > a {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #f56c6c;
+          }
+        }
+        .title {
+          font-size: 18px;
+          margin-top: 10px;
+        }
+        .logo {
+          .logo-letter {
+            font-size: 30px;
+          }
+          .info {
+            margin-top: 10px;
+            color: rgb(93, 91, 91);
+          }
+        }
+      }
+    }
   }
 }
 

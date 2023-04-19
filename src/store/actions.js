@@ -20,5 +20,8 @@ const actions = {
   readMessage: ({ commit }, payload) => {
     commit('readMessage', payload);
   },
+  saveSysSetting: ({ commit }, payload) => {
+    commit('saveSysSetting', payload);
+  },
 }
 export default actions;

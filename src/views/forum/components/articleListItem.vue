@@ -24,8 +24,10 @@
           </template>
         </div>
         <router-link :to="`/post/${data.articleId}`" class="a-link title">
-          <span v-if="data.topType" class="top">置顶</span>
-          <span>{{ data.title }}</span>
+          <span v-if="data.topType == 1" class="top">置顶</span>
+          <el-tag v-if="data.status == 0" type="danger">待审核</el-tag>
+          <span v-if="htmlTitle" v-html="data.title"></span>
+          <span v-else>{{ data.title }}</span>
         </router-link>
         <div class="summary">{{ data.summary }}</div>
         <div class="article-info">
@@ -35,8 +37,14 @@
           <span class="iconfont icon-good">
             {{ data.goodCount == 0 ? "点赞" : data.goodCount }}
           </span>
-          <span class="iconfont icon-comment">
+          <span class="iconfont icon-comment" v-if="showComment">
             {{ data.commentCount == 0 ? "评论" : data.commentCount }}
+          </span>
+          <span
+            class="iconfont icon-edit a-link"
+            v-if="showEdit"
+            @click="editArtice(data.articleId)"
+            >编辑
           </span>
         </div>
       </div>
@@ -47,12 +55,30 @@
   </div>
 </template>
 <script setup>
+import { useRouter } from "vue-router";
+const router = useRouter();
 const props = defineProps({
   data: {
     type: Object,
     default: () => {},
   },
+  showComment: {
+    type: Boolean,
+    default: false,
+  },
+  showEdit: {
+    type: Boolean,
+    default: false,
+  },
+  htmlTitle: {
+    type: Boolean,
+    default: false,
+  },
 });
+
+const editArtice = (articleId) => {
+  router.push(`/editPost/${articleId}`);
+};
 </script>
 <style lang="less" scoped>
 .article-list-item {
@@ -69,7 +95,7 @@ const props = defineProps({
         display: flex;
         align-items: center;
         font-size: 14px;
-        .separator{
+        .separator {
           color: #fbb9df;
         }
         .a-link {
@@ -85,6 +111,12 @@ const props = defineProps({
         margin: 10px 0;
         font-weight: bold;
         font-size: 16px;
+        ::v-deep(.el-tag) {
+          margin-right: 5px;
+          background: #fff;
+          color: #61666d;
+          border: 1px solid #61666d;
+        }
         .top {
           margin-right: 10px;
           padding: 0 2px;

@@ -67,7 +67,11 @@
             @loadData="loadArticle"
           >
             <template #default="{ data }">
-              <articleListItem :data="data"></articleListItem>
+              <articleListItem
+                :data="data"
+                :showComment="showComment"
+                :showEdit="activeTabName == 0 && isCurrentUser"
+              ></articleListItem>
             </template>
           </dataList>
         </div>
@@ -198,6 +202,18 @@ const showIntegralRecord = (key) => {
   }
   userIntegralRecordRef.value.showRecord();
 };
+
+// 是否显示评论，根据系统设置
+const showComment = ref(false);
+watch(
+  () => store.state.sysSetting,
+  (newVal, oldVal) => {
+    if (newVal) {
+      showComment.value = newVal.commentOpen;
+    }
+  },
+  { immediate: true, deep: true }
+);
 </script>
 <style lang="less" scoped>
 .u-center {

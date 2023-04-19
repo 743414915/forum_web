@@ -11,7 +11,7 @@
         <div class="comment-content">
           <div style="margin-bottom: 10px">
             <span class="tag-topping" v-if="commentData.topType">置顶</span>
-            <span class="no-audit" v-if="!commentData.status">待审核</span>
+            <el-tag v-if="!commentData.status" type="danger">待审核</el-tag>
             <span v-html="commentData.content"></span>
           </div>
           <commentImage
@@ -227,14 +227,19 @@ const opTop = (data) => {
         margin-top: 5px;
         font-size: 15px;
         line-height: 22px;
-        .tag-topping,
-        .no-audit {
+        .tag-topping {
           margin-right: 5px;
           padding: 0 5px;
           color: #f69;
           border: 1px solid #f69;
           font-size: 12px;
           border-radius: 3px;
+        }
+        ::v-deep(.el-tag) {
+          margin-right: 5px;
+          background: #fff;
+          color: #61666d;
+          border: 1px solid #61666d;
         }
         .no-audit {
           color: #aaa;

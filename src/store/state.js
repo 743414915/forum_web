@@ -10,7 +10,9 @@ const state = {
   // 当前二级板块
   activeBoardId: 0,
   // 消息数量
-  messageCountInfo: {}
+  messageCountInfo: {},
+  // 系统设置
+  sysSetting: {}
 };
 
 export default state;

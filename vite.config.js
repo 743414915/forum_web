@@ -38,10 +38,21 @@ export default defineConfig({
       patterns: [path.resolve(__dirname, "./src/assets/base.less")]
     }
   },
-  // preprocessorOptions: {
-  //   less: {
-  //     chartset: false,
-  //     additionalData: `@import "${path.resolve(__dirname, 'src/assets/base.less')}"`
-  //   }
-  // },
+  build: {
+    chunkSizeWarningLimit: 3000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            return id.toString().split("node_modules/")[1].split("/")[0].toString();
+          }
+        }
+      },
+    },
+    chunkFileNames: (chunkInfo) => {
+      const facdaeModuleId = chunkInfo.facdaeModuleId ? chunkInfo.facdaeModuleId.split("/") : []
+      const fileName = facdaeModuleId[facdaeModuleId.length - 2] || "[name]";
+      return `js/${fileName}/[name].[hash].js`
+    }
+  }
 })

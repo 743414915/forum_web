@@ -46,7 +46,10 @@
           @loadData="loadArticle"
         >
           <template #default="{ data }">
-            <articleListItem :data="data"></articleListItem>
+            <articleListItem
+              :showComment="showComment"
+              :data="data"
+            ></articleListItem>
           </template>
         </dataList>
       </div>
@@ -148,6 +151,18 @@ watch(
     setSubBoard();
     store.dispatch("setActivePBoardId", newValue.pBoardId);
     store.dispatch("setActiveBoardId", newValue.boardId);
+  },
+  { immediate: true, deep: true }
+);
+
+// 是否显示评论，根据系统设置
+const showComment = ref(false);
+watch(
+  () => store.state.sysSetting,
+  (newVal, oldVal) => {
+    if (newVal) {
+      showComment.value = newVal.commentOpen;
+    }
   },
   { immediate: true, deep: true }
 );

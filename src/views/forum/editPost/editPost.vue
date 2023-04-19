@@ -128,15 +128,17 @@ const route = useRoute();
 
 const editorMarkdownRef = ref();
 const editorHtmlRef = ref();
-const markdownHeight = ref(window.innerHeight);
+const markdownHeight = ref(window.innerHeight - 80 -50);
 // 60是顶部悬浮栏的高度   37是编辑器标题的高度
-const htmlEditorHright = ref(window.innerHeight);
-nextTick(() => {
-  markdownHeight.value =
-    markdownHeight.value - $(editorMarkdownRef.value.$el).offset().top - 5 - 1;
-  // htmlEditorHright.value =
-  //   htmlEditorHright.value - $(editorHtmlRef.value.$el).offset().top - 90;
-});
+const htmlEditorHright = ref(window.innerHeight - 80 -100);
+// nextTick(() => {
+//   markdownHeight.value =
+//     markdownHeight.value - $(editorMarkdownRef.value.$el).offset().top;
+//     console.log(markdownHeight.value)
+//     console.log($(editorMarkdownRef.value.$el).scrollTop())
+//   // htmlEditorHright.value =
+//   //   htmlEditorHright.value - $(editorHtmlRef.value.$el).offset().top - 90;
+// });
 
 const api = {
   loadBoard4Post: "forum/loadBoard4Post",

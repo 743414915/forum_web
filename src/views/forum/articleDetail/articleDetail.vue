@@ -26,8 +26,8 @@
       <div class="artcile-detail">
         <!-- 标题 -->
         <div class="title">
-          <span>{{ articleInfo.title }}</span>
           <el-tag v-if="!articleInfo.status" type="danger">待审核</el-tag>
+          <span>{{ articleInfo.title }}</span>
         </div>
         <!-- 用户信息 -->
         <div class="user-info">
@@ -92,7 +92,11 @@
         </div>
       </div>
       <!-- 评论 -->
-      <div class="comment-panel" id="view-comment">
+      <div
+        class="comment-panel"
+        id="view-comment"
+        v-if="showComment && articleInfo.status == 1"
+      >
         <commentList
           v-if="articleInfo.articleId"
           :articleId="articleInfo.articleId"
@@ -129,23 +133,24 @@
     ref="quickPanelRef"
     :style="{ left: quickPanelLeft + 'px' }"
   >
-    <el-badge
-      v-for="(item, index) in badgeDescription"
-      :key="item + index"
-      :value="articleInfo[item.key]"
-      type="info"
-      :hidden="!articleInfo[item.key]"
-    >
-      <div class="quick-item" @click="badgeClick(item.key)">
-        <span
-          :class="[
-            'iconfont',
-            item.icon,
-            isLikeClick(item.key) ? 'have-like' : '',
-          ]"
-        >
-        </span></div
-    ></el-badge>
+    <template v-for="(item, index) in badgeDescription" :key="item + index">
+      <el-badge
+        :value="articleInfo[item.key]"
+        type="info"
+        :hidden="!articleInfo[item.key]"
+        v-if="item.key === 'commentCount' ? showComment : true"
+      >
+        <div class="quick-item" @click="badgeClick(item.key)">
+          <span
+            :class="[
+              'iconfont',
+              item.icon,
+              isLikeClick(item.key) ? 'have-like' : '',
+            ]"
+          >
+          </span></div
+      ></el-badge>
+    </template>
     <!-- 图片预览 -->
     <imageViewer ref="imageViewerRef" :imageList="previewImgList"></imageViewer>
   </div>
@@ -435,6 +440,19 @@ watch(
   },
   { immediate: true, deep: true }
 );
+
+// 是否显示评论，根据系统设置
+const showComment = ref(false);
+watch(
+  () => store.state.sysSetting,
+  (newVal, oldVal) => {
+    if (newVal) {
+      showComment.value = newVal.commentOpen;
+    }
+  },
+  { immediate: true, deep: true }
+);
+
 onMounted(() => {
   getArticleDetail(route.params.articleId);
   window.addEventListener("scroll", listenerScroll, false);
@@ -462,6 +480,12 @@ onUnmounted(() => {
     .artcile-detail {
       background: #fff;
       padding: 10px;
+      ::v-deep(.el-tag) {
+        margin-right: 5px;
+        background: #fff;
+        color: #61666d;
+        border: 1px solid #61666d;
+      }
       .title {
         font-weight: bold;
       }
