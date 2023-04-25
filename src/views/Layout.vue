@@ -175,7 +175,7 @@ const api = {
   loadBoard: "/board/loadBoard",
   logout: "/account/logout",
   loadMessageCount: "/ucenter/getMessageCount",
-  getSysSetting: "/getSysSetting",
+  getSysSetting: "/setting/getSetting",
 };
 
 // 铃铛下拉列表

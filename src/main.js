@@ -31,7 +31,7 @@ const app = createApp(App);
 
 app.config.globalProperties.VueCookies = VueCookies;
 app.config.globalProperties.globalInfo = {
-  bodyWidth: 60,
+  bodyWidth: 70,
   avatarUrl: '/api/file/getAvatar/',
   imageUrl: '/api/file/getImage/'
 };

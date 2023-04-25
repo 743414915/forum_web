@@ -1,7 +1,9 @@
 <template>
   <div class="plate-information">
     <router-link :to="'/'" class="a-link">
-      <span :class="['a-link', 'menu-item', { active: isHomeActive }]"
+      <span
+        title="首页"
+        :class="['a-link', 'menu-item', { active: isHomeActive }]"
         >首页</span
       >
     </router-link>
@@ -20,6 +22,7 @@
               item.boardId == activePBoardId ? 'active' : '',
             ]"
             @click="boardClickHandler(item)"
+            :title="item.boardName"
             >{{ item.boardName }}</span
           >
         </template>
@@ -101,6 +104,15 @@ watch(
 </script>
 <style lang="less" scoped>
 .plate-information {
+  display: flex;
+  max-height: 60px;
+  > span,
+  > a {
+    max-width: 60px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   .menu-item {
     margin-left: 20px;
     font-weight: 800;
